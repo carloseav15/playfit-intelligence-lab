@@ -1,0 +1,8 @@
+metric,value,description
+alpha_best,0.7,Peso contenido (mejor grid search)
+beta_best,0.2,Peso popularidad (mejor grid search)
+gamma_best,0.1,Peso penalización (mejor grid search)
+ndcg_at_5_best,0.5691,NDCG@5 del mejor modelo
+precision_at_5_best,0.56,Precision@5 del mejor modelo
+total_games_in_catalog,63682.0,Total juegos en feature matrix
+feature_dimensions,100.0,Dimensiones SVD del content model

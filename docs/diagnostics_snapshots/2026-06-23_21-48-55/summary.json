@@ -1,0 +1,53 @@
+{
+  "quality_gaps": {
+    "rows": 63682,
+    "columns": [
+      "game_id",
+      "title",
+      "missing_issues",
+      "data_confidence_score",
+      "popularity_score"
+    ],
+    "path": "docs/diagnostics_snapshots/2026-06-23_21-48-55/quality_gaps.csv"
+  },
+  "duplicate_groups": {
+    "rows": 914,
+    "columns": [
+      "group_key",
+      "suggested_review",
+      "status",
+      "candidate_count"
+    ],
+    "path": "docs/diagnostics_snapshots/2026-06-23_21-48-55/duplicate_groups.csv"
+  },
+  "external_matches": {
+    "rows": 5000,
+    "columns": [
+      "game_id",
+      "source",
+      "source_title",
+      "confidence_score",
+      "matched_by"
+    ],
+    "path": "docs/diagnostics_snapshots/2026-06-23_21-48-55/external_matches.csv"
+  },
+  "low_confidence_priorities": {
+    "rows": 2602,
+    "columns": [
+      "game_id",
+      "title",
+      "data_confidence_score",
+      "popularity_score"
+    ],
+    "path": "docs/diagnostics_snapshots/2026-06-23_21-48-55/low_confidence_priorities.csv"
+  },
+  "model_card_metrics": {
+    "rows": 7,
+    "columns": [
+      "metric",
+      "value",
+      "description"
+    ],
+    "path": "docs/diagnostics_snapshots/2026-06-23_21-48-55/model_card_metrics.csv"
+  }
+}
