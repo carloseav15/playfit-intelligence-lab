@@ -4,6 +4,8 @@ data/raw/
 data/processed/
 models/artifacts/
 models/mlruns/
+mlruns/
+mlflow.db
 reports/figures/
 __pycache__/
 *.pyc

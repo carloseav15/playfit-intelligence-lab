@@ -9,23 +9,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from src.features.catalog_features import (
-    load_games, load_signals, load_platforms, load_tags,
-    load_duplicates, load_external_match,
-    coverage_analysis, signal_quality_analysis,
-    duplicate_analysis, external_match_analysis,
-)
-from src.features.game_features import (
-    build_feature_matrix, compute_popularity_score, compute_richness_score,
-)
-from src.models.content_based import build_content_model
-from src.models.hybrid import HybridRecommender
-from src.evaluation.explainability import make_explanation, get_game_details
-from src.evaluation.llm_explainability import LLMExplainer
-from src.evaluation.metrics import (
-    precision_at_k, recall_at_k, ndcg_at_k, map_at_k,
-    hit_rate_at_k, coverage as coverage_metric, novelty, diversity,
-)
+IS_DEMO = (Path(__file__).resolve().parent.parent / "data" / "demo").exists()
+
+if not IS_DEMO:
+    from src.features.catalog_features import (
+        load_games, load_signals, load_platforms, load_tags,
+        load_duplicates, load_external_match,
+        coverage_analysis, signal_quality_analysis,
+        duplicate_analysis, external_match_analysis,
+    )
+    from src.features.game_features import (
+        build_feature_matrix, compute_popularity_score, compute_richness_score,
+    )
+    from src.models.content_based import build_content_model
+    from src.models.hybrid import HybridRecommender
+    from src.evaluation.explainability import make_explanation, get_game_details
+    from src.evaluation.metrics import (
+        precision_at_k, recall_at_k, ndcg_at_k, map_at_k,
+        hit_rate_at_k, coverage as coverage_metric, novelty, diversity,
+    )
+
+from src.models.demo_loader import load_demo_recommender, search_games_in_demo
 
 sns.set_theme(style="darkgrid")
 
@@ -48,6 +52,8 @@ st.markdown("""
 
 @st.cache_resource
 def load_all_data():
+    if IS_DEMO:
+        return None
     games = load_games()
     signals = load_signals()
     groups, candidates = load_duplicates()
@@ -57,6 +63,9 @@ def load_all_data():
 
 @st.cache_resource
 def load_model():
+    if IS_DEMO:
+        rec = load_demo_recommender()
+        return rec.feature_matrix, rec.content_model, rec
     fm = build_feature_matrix()
     fm = compute_popularity_score(fm)
     fm = compute_richness_score(fm)
@@ -68,6 +77,8 @@ def load_model():
 
 st.title("🎮 Playfit Intelligence Lab")
 st.markdown("**Data Quality · Recommendation Engine · Model Evaluation**")
+if IS_DEMO:
+    st.info("🌐 Demo mode — showing top 500 games by popularity. Full mode requires local DB access.")
 st.markdown("---")
 
 tab_catalog, tab_recommender, tab_evaluation = st.tabs([
@@ -78,6 +89,19 @@ tab_catalog, tab_recommender, tab_evaluation = st.tabs([
 # TAB 1: Catalog Health
 # ──────────────────────────────────────
 with tab_catalog:
+    if IS_DEMO:
+        st.info("📊 Catalog Health requires full dataset. Showing demo dataset overview instead.")
+        fm_demo, _, _ = load_model()
+        st.metric("Games in demo", len(fm_demo))
+        st.markdown("""
+        **Deploy full version:** clone repo locally and connect to your Supabase PostgreSQL.
+        ```bash
+        python3 scripts/feedback_to_db.py      # Write diagnostics to DB
+        streamlit run app/streamlit_app.py      # Full Streamlit app
+        ```
+        """)
+        st.stop()
+
     games, signals, groups, candidates, matches = load_all_data()
 
     cov = coverage_analysis(games)
@@ -175,18 +199,39 @@ with tab_recommender:
     st.markdown("### Try the Recommender")
     st.caption("Select games you like, adjust parameters, and see recommendations with explanations.")
 
-    game_options = fm.select(["game_id", "title"]).to_pandas()
-    game_list = game_options["title"].tolist()
-    game_id_map = dict(zip(game_options["title"], game_options["game_id"]))
-    reverse_map = dict(zip(game_options["game_id"], game_options["title"]))
+    if IS_DEMO:
+        search_q = st.text_input("Search games by title:", placeholder="e.g. zelda, mario, final fantasy")
+        if search_q:
+            matches = search_games_in_demo(search_q, rec)
+            if matches:
+                game_options = {m["title"]: m["game_id"] for m in matches}
+            else:
+                game_options = {}
+                st.warning("No games found matching that search.")
+        else:
+            game_options = {}
+    else:
+        game_options = fm.select(["game_id", "title"]).to_pandas()
+        game_list = game_options["title"].tolist()
+        game_id_map = dict(zip(game_options["title"], game_options["game_id"]))
+        reverse_map = dict(zip(game_options["game_id"], game_options["title"]))
 
-    liked_titles = st.multiselect(
-        "Games you like (select 1-5):",
-        options=game_list,
-        default=[],
-        max_selections=5,
-    )
-    liked_ids = [game_id_map[t] for t in liked_titles]
+    if IS_DEMO and "game_options" in dir():
+        liked_titles = st.multiselect(
+            "Games you like (select 1-5):",
+            options=list(game_options.keys()) if game_options else [],
+            default=[],
+            max_selections=5,
+        )
+        liked_ids = [game_options[t] for t in liked_titles] if game_options else []
+    else:
+        liked_titles = st.multiselect(
+            "Games you like (select 1-5):",
+            options=game_list if not IS_DEMO else [],
+            default=[],
+            max_selections=5,
+        )
+        liked_ids = [game_id_map[t] for t in liked_titles]
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -219,12 +264,22 @@ with tab_recommender:
 
             explainer = None
             if use_llm:
+                from src.evaluation.llm_explainability import LLMExplainer
                 explainer = LLMExplainer(model="gpt-4o-mini")
 
             st.markdown(f"### Top {n_recs} Recommendations")
             for i, r in enumerate(results):
-                details = get_game_details(r['game_id'])
-                expl = explainer.explain(r) if explainer else make_explanation(r)
+                if IS_DEMO:
+                    details = {"title": r["game_id"], "year": "", "genre": "", "platforms": []}
+                    def make_demo_explanation(r2):
+                        return (f"This game is recommended because it has high content similarity "
+                                f"(score: {r2['content_score']:.2f}) to your selected games, "
+                                f"coupled with strong popularity (score: {r2['popularity_score']:.2f}).")
+                    expl = explainer.explain(r) if explainer else make_demo_explanation(r)
+                else:
+                    from src.evaluation.explainability import make_explanation, get_game_details
+                    details = get_game_details(r['game_id'])
+                    expl = explainer.explain(r) if explainer else make_explanation(r)
 
                 with st.container(border=True):
                     col_a, col_b = st.columns([3, 1])
@@ -245,8 +300,9 @@ with tab_recommender:
                         st.metric("Score", f"{r['final_score']:.2f}")
 
                     st.markdown(f"**Why:** {expl}")
+                    top_score = max(r['final_score'] for r in results)
                     st.progress(
-                        min(r['final_score'] / max(r['final_score'] for r in results), 1.0),
+                        min(r['final_score'] / top_score, 1.0),
                         text=f"Content: {r['content_score']:.2f} · Popularity: {r['popularity_score']:.2f} · Confidence: {r['data_confidence']}/100"
                     )
 
@@ -259,10 +315,7 @@ with tab_recommender:
         cold_results = rec.recommend([], k=10)
         st.markdown("**Top 10 by Popularity (Cold-Start):**")
         for i, r in enumerate(cold_results):
-            details = get_game_details(r['game_id'])
-            title = details.get('title', r['game_id'])
-            platforms = ', '.join(details.get('platforms', [])) if details.get('platforms') else ''
-            st.markdown(f"{i+1}. **{title}** — Score: {r['final_score']:.2f} · Confidence: {r['data_confidence']}/100  ")
+            st.markdown(f"{i+1}. **{r['game_id']}** — Score: {r['final_score']:.2f} · Confidence: {r['data_confidence']}/100  ")
 
 
 # ──────────────────────────────────────
@@ -270,7 +323,6 @@ with tab_recommender:
 # ──────────────────────────────────────
 with tab_evaluation:
     fm, cm, rec = load_model()
-    popularity_map = dict(zip(fm['game_id'].to_list(), fm['popularity_score'].to_list()))
 
     test_profiles = [
         {"name": "Casual Gamer", "tags": ["casual", "puzzle", "family", "party", "rhythm"]},
@@ -282,6 +334,7 @@ with tab_evaluation:
 
     @st.cache_resource
     def compute_evaluation():
+        from src.models.hybrid import HybridRecommender
         rec_inner = HybridRecommender(alpha=0.5, beta=0.4, gamma=0.1)
         rec_inner.fit(fm, cm)
 
@@ -321,6 +374,13 @@ with tab_evaluation:
             'map20': map20,
             'hit_rate20': hr20,
         }
+
+    if IS_DEMO:
+        st.info("📈 Full evaluation requires complete dataset. Showing demo evaluation on 500 games.")
+        from src.evaluation.metrics import (
+            precision_at_k, recall_at_k, ndcg_at_k, map_at_k,
+            hit_rate_at_k, coverage as coverage_metric,
+        )
 
     eval_data = compute_evaluation()
 

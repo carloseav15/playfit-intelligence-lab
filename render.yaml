@@ -6,17 +6,5 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: streamlit run app/streamlit_app.py --server.port=10000 --server.address=0.0.0.0
     envVars:
-      - key: SUPABASE_DB_HOST
-        value: 127.0.0.1
-      - key: SUPABASE_DB_PORT
-        value: "54322"
-      - key: SUPABASE_DB_NAME
-        value: postgres
-      - key: SUPABASE_DB_USER
-        value: postgres
-      - key: SUPABASE_DB_PASSWORD
-        value: postgres
-      - key: SUPABASE_SCHEMA
-        value: games_library
       - key: OPENROUTER_API_KEY
         sync: false
