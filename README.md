@@ -8,6 +8,10 @@ Playfit's product goal is recommending games from actual taste signals instead o
 This lab is where that recommendation logic gets prototyped and evaluated before it ships to
 the product.
 
+Live demo: [playfit-intelligence-lab.onrender.com](https://playfit-intelligence-lab.onrender.com)
+(runs in demo mode on a precomputed 500-game sample — free tier sleeps after inactivity, first
+load can take ~30s to wake up)
+
 ## 🎯 What This Project Demonstrates
 
 | Skill | Evidence |
