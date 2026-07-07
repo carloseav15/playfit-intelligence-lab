@@ -65,7 +65,12 @@ class LambdaRankRecommender:
         group_sizes = []
         for g in unique_groups:
             mask = query_groups == g
-            group_sizes.append(mask.sum())
+            size = mask.sum()
+            while size > 10000:
+                group_sizes.append(10000)
+                size -= 10000
+            if size > 0:
+                group_sizes.append(size)
         group = np.array(group_sizes, dtype=int)
         sort_idx = np.argsort(query_groups)
         X_sorted = X[sort_idx]
@@ -82,14 +87,15 @@ class LambdaRankRecommender:
 
         X, y, group, feature_cols, sort_idx = self._prepare_data(feature_matrix)
         self.feature_names = feature_cols
-        split = int(len(X) * 0.8)
-        X_train, y_train = X[:split], y[:split]
-        X_val, y_val = X[split:], y[split:]
+        split_group_idx = int(len(group) * 0.8)
+        group_train = group[:split_group_idx]
+        group_val = group[split_group_idx:]
 
         cumsum = np.cumsum(group)
-        split_point = np.searchsorted(cumsum, split, side="right")
-        group_train = group[:split_point]
-        group_val = group[split_point:]
+        split_row_idx = cumsum[split_group_idx - 1]
+
+        X_train, y_train = X[:split_row_idx], y[:split_row_idx]
+        X_val, y_val = X[split_row_idx:], y[split_row_idx:]
 
         self.model = LGBMRanker(**self.params)
         self.model.fit(

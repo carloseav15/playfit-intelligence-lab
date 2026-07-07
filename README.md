@@ -4,6 +4,10 @@
 
 > Built with real production data from [Playfit](https://github.com/carancibia/games-library) (63,682 games, 164K+ game-tags, 42K+ scores, 35K+ external match candidates).
 
+Playfit's product goal is recommending games from actual taste signals instead of popularity.
+This lab is where that recommendation logic gets prototyped and evaluated before it ships to
+the product.
+
 ## 🎯 What This Project Demonstrates
 
 | Skill | Evidence |
@@ -134,11 +138,11 @@ Where:
 | Category | Tools |
 |---|---|
 | **Core** | Python 3.12, SQL, Git, Docker |
-| **Data Wrangling** | Polars 1.41, Pandas 3.0, DuckDB 1.5 |
-| **ML** | scikit-learn 1.9, LightGBM 4.6 (LambdaRank), NearestNeighbors, SVD |
-| **MLOps** | MLflow 3.14 (tracking + genai evaluation) |
+| **Data Wrangling** | Polars 1.x, Pandas 2.x, DuckDB 1.x |
+| **ML** | scikit-learn 1.5+, LightGBM 4.x (LambdaRank), NearestNeighbors, SVD |
+| **MLOps** | MLflow 2.10+ (tracking + genai evaluation) |
 | **LLM/GenAI** | OpenAI API, OpenRouter, GPT-4o-mini |
-| **Visualization** | Matplotlib, Seaborn, Streamlit 1.58 |
+| **Visualization** | Matplotlib, Seaborn, Streamlit 1.30+ |
 | **Database** | Supabase Postgres (local, 27 tables) |
 | **Deploy** | Docker, Render.com |
 

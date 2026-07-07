@@ -16,13 +16,14 @@ def build_feature_matrix() -> pl.DataFrame:
 
     tags_wide = _pivot_tags()
     platforms_wide = _pivot_platforms()
+    genres_wide = _pivot_genres()
 
     features = games.select([
         "game_id",
         "title",
         "release_year",
         "genre_id",
-    ]).join(tags_wide, on="game_id", how="left").join(platforms_wide, on="game_id", how="left")
+    ]).join(tags_wide, on="game_id", how="left").join(platforms_wide, on="game_id", how="left").join(genres_wide, on="game_id", how="left")
 
     for col in features.columns:
         if col not in {"game_id", "title", "release_year", "genre_id"}:
@@ -90,6 +91,21 @@ def _pivot_tags() -> pl.DataFrame:
         aggregate_function="first",
     ).fill_null(0)
     return tag_wide
+
+
+def _pivot_genres() -> pl.DataFrame:
+    genres = pl.read_parquet(RAW_DIR / "game_genres.parquet")
+    genre_catalog = pl.read_parquet(RAW_DIR / "genres.parquet")
+    genres = genres.join(genre_catalog.select(["id"]), left_on="genre_id", right_on="id", how="inner")
+    genres = genres.with_columns(pl.lit(1).alias("val"))
+    genre_wide = genres.pivot(
+        index="game_id",
+        columns="genre_id",
+        values="val",
+        aggregate_function="first",
+    ).fill_null(0)
+    genre_wide = genre_wide.rename({c: f"genre_{c}" for c in genre_wide.columns if c != "game_id"})
+    return genre_wide
 
 
 def _pivot_platforms() -> pl.DataFrame:

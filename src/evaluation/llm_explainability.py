@@ -18,9 +18,11 @@ class LLMExplainer:
                          or "https://openrouter.ai/api/v1")
 
     def _call_llm(self, prompt: str) -> str:
+        if not self.api_key or self.api_key == "YOUR_API_KEY" or "mock" in self.api_key.lower():
+            return "[LLM Explanation Mock: No API Key Configured]"
         from openai import OpenAI
-        client = OpenAI(api_key=self.api_key, base_url=self.api_base)
         try:
+            client = OpenAI(api_key=self.api_key, base_url=self.api_base)
             resp = client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],

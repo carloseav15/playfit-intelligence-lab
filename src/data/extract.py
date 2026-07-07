@@ -28,6 +28,7 @@ EXPORT_TABLES = {
     "games": f"SELECT * FROM {SCHEMA}.games",
     "game_platforms": f"SELECT * FROM {SCHEMA}.game_platforms",
     "game_tags": f"SELECT * FROM {SCHEMA}.game_tags",
+    "game_genres": f"SELECT * FROM {SCHEMA}.game_genres",
     "genres": f"SELECT * FROM {SCHEMA}.genres",
     "platforms": f"SELECT * FROM {SCHEMA}.platforms",
     "tags": f"SELECT * FROM {SCHEMA}.tags",
