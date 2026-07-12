@@ -109,16 +109,18 @@ with tab_catalog:
     da = duplicate_analysis()
     ema = external_match_analysis(matches)
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    col1, col2, col3, col4, col5, col6 = st.columns(6)
     with col1:
         st.metric("Total Games", f"{cov['total_games']:,}")
     with col2:
         st.metric("With Genre", f"{100 - cov['no_genre']:.1f}%")
     with col3:
-        st.metric("With Cover", f"{100 - cov['no_cover']:.1f}%")
+        st.metric("Multi-Genre", f"{cov['multi_genre']:.1f}%")
     with col4:
-        st.metric("Avg Confidence", f"{sq['avg_confidence']:.1f}")
+        st.metric("With Cover", f"{100 - cov['no_cover']:.1f}%")
     with col5:
+        st.metric("Avg Confidence", f"{sq['avg_confidence']:.1f}")
+    with col6:
         st.metric("Duplicate Groups", f"{da['total_groups']:,}")
 
     st.markdown("### Quality Coverage")
@@ -179,6 +181,7 @@ with tab_catalog:
         st.markdown(f"""
         - **{cov['total_games']:,}** games in catalog
         - **{100 - cov['no_genre']:.1f}%** have a genre assigned
+        - **{cov['multi_genre']:.1f}%** have multiple genres
         - **{100 - cov['no_cover']:.1f}%** have a cover image
         - **{100 - cov['no_year']:.1f}%** have a release year
         - **{sq['has_scores_pct']:.1f}%** have critic/user scores

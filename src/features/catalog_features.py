@@ -22,6 +22,10 @@ def load_tags() -> pl.DataFrame:
     return pl.read_parquet(RAW_DIR / "game_tags.parquet")
 
 
+def load_game_genres() -> pl.DataFrame:
+    return pl.read_parquet(RAW_DIR / "game_genres.parquet")
+
+
 def load_duplicates() -> tuple[pl.DataFrame, pl.DataFrame]:
     return (
         pl.read_parquet(RAW_DIR / "game_duplicate_groups.parquet"),
@@ -37,9 +41,13 @@ def coverage_analysis(games: pl.DataFrame | None = None) -> dict:
     if games is None:
         games = load_games()
     total = len(games)
+    game_genres = load_game_genres()
+    genre_counts = game_genres.group_by("game_id").len()
+    multi_genre_pct = (genre_counts["len"] > 1).sum() / total * 100
     return {
         "total_games": total,
         "no_genre": (games["genre_id"].is_null().sum() / total * 100),
+        "multi_genre": multi_genre_pct,
         "no_cover": ((games["cover_url"] == "") | games["cover_url"].is_null()).sum() / total * 100,
         "no_year": games["release_year"].is_null().sum() / total * 100,
         "no_tags": games["tags"].list.len().is_null().sum() / total * 100,
