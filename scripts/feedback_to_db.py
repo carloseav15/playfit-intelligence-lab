@@ -1,5 +1,5 @@
 """
-feedback_to_db.py — Escribe diagnósticos del proyecto en la DB de games-library.
+feedback_to_db.py — Writes project diagnostics to the games-library database.
 
 Crea un schema _diagnostics con tablas que puedes consultar desde Supabase Studio.
 No modifica ninguna tabla existente.
@@ -194,7 +194,7 @@ def write_model_card_metrics(conn):
         rows = [
             ("alpha_best", 0.7, "Peso contenido (mejor grid search)"),
             ("beta_best", 0.2, "Peso popularidad (mejor grid search)"),
-            ("gamma_best", 0.1, "Peso penalización (mejor grid search)"),
+            ("gamma_best", 0.1, "Penalty weight (best grid search)"),
             ("ndcg_at_5_best", 0.5691, "NDCG@5 del mejor modelo"),
             ("precision_at_5_best", 0.56, "Precision@5 del mejor modelo"),
             ("total_games_in_catalog", float(len(fm)), "Total juegos en feature matrix"),

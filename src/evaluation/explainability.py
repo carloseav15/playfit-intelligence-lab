@@ -11,18 +11,18 @@ def make_explanation(rec: dict,
     game_id = rec["game_id"]
 
     if rec.get("content_score", 0) > 0.05:
-        parts.append("coincide en tags/género con juegos que te gustan")
+        parts.append("matches the tags/genre of games you like")
     if rec.get("popularity_score", 0) > 0.5:
-        parts.append("alta popularidad global")
+        parts.append("high global popularity")
     if rec.get("data_confidence", 50) >= 70:
-        parts.append(f"alta confianza de datos ({rec['data_confidence']}/100)")
+        parts.append(f"high data confidence ({rec['data_confidence']}/100)")
     elif rec.get("data_confidence", 50) < 40:
-        parts.append("datos limitados - verifica reseñas externas")
+        parts.append("limited data - check external reviews")
     if rec.get("confidence_penalty", 0) > 0.02:
-        parts.append("penalizado por falta de datos de calidad")
+        parts.append("penalized for incomplete quality data")
 
     if not parts:
-        return "recomendado por popularidad general"
+        return "recommended by general popularity"
 
     return " · ".join(parts)
 

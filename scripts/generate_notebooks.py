@@ -3,7 +3,7 @@ import nbformat as nbf
 NB_NOTEBOOKS = {
     "notebooks/01_catalog_quality_audit.ipynb": {
         "title": "01 — Catalog Quality Audit",
-        "description": "Análisis de cobertura, calidad y duplicados del catálogo Playfit.",
+        "description": "Analysis of Playfit catalog coverage, quality, and duplicates.",
     },
 }
 
@@ -30,14 +30,14 @@ def generate_01():
     global cells
     cells = []
     md("# Playfit Intelligence Lab — 01: Catalog Quality Audit")
-    md("""Este notebook analiza la calidad y cobertura del catálogo de juegos de Playfit.
+    md("""This notebook analyzes the quality and coverage of the Playfit game catalog.
 La base de datos contiene **63,682 juegos** con datos de plataformas, tags, scores, ventas,
-sentimiento de reseñas, matching externo y detección de duplicados.
+review sentiment, external matching, and duplicate detection.
 
 **Objetivos:**
-- Medir la cobertura real del catálogo (géneros, portadas, años, tags)
-- Analizar la distribución del `data_confidence_score`
-- Caracterizar los duplicados detectados y su estado de revisión
+- Measure real catalog coverage (genres, covers, years, tags)
+- Analyze the distribution of `data_confidence_score`
+- Characterize detected duplicates and their review status
 - Evaluar la calidad del matching externo (Metacritic, VGSales)
 - Generar visualizaciones portfolio-grade""")
 
@@ -59,9 +59,9 @@ from src.features.catalog_features import (
 
 sns.set_theme(style="darkgrid", palette="viridis")
 plt.rcParams['figure.figsize'] = (12, 6)
-print("Librerías cargadas correctamente.")""")
+print("Libraries loaded successfully.")""")
 
-    md("## 1. Cobertura del Catálogo\nCargamos los datos y calculamos métricas generales de cobertura.")
+    md("## 1. Catalog Coverage\nWe load the data and calculate general coverage metrics.")
 
     code("""games = load_games()
 cov = coverage_analysis(games)
@@ -72,35 +72,35 @@ for k, v in cov.items():
         print(f"{k:30s}: {v}")
 print(f"\\nTotal juegos: {cov['total_games']:,}")""")
 
-    md("""**Hallazgos típicos:**
-- ~60% sin género asignado
+    md("""**Typical findings:**
+- ~60% without an assigned genre
 - ~50% sin portada (cover_url)
-- ~3-5% sin año de lanzamiento
+- ~3-5% without a release year
 - ~5% sin tags""")
 
-    md("## 2. Fuentes y Estados de Publicación")
+    md("## 2. Sources and Publication States")
 
     code("""fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
 source = cov['source_distribution']
 ax1.bar(source['source_type'], source['len'], color=['#2ecc71', '#3498db', '#e74c3c'])
-ax1.set_title('Distribución por Source Type')
+ax1.set_title('Distribution by Source Type')
 ax1.set_ylabel('Cantidad de juegos')
 
 states = cov['release_state_distribution']
 ax2.bar(states['release_state'], states['len'], color=['#9b59b6', '#f39c12'])
-ax2.set_title('Distribución por Release State')
+ax2.set_title('Distribution by Release State')
 ax2.set_ylabel('Cantidad de juegos')
 
 plt.tight_layout()
 plt.savefig('../reports/figures/source_distribution.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("## 3. Señales de Calidad (Data Confidence Score)\nLa vista `game_recommendation_enrichment_signals` expone un score de confianza (0-100) por juego.")
+    md("## 3. Quality Signals (Data Confidence Score)\nThe `game_recommendation_enrichment_signals` view exposes a confidence score (0-100) per game.")
 
     code("""signals = load_signals()
 sq = signal_quality_analysis(signals)
-print("Distribución del Data Confidence Score:")
+print("Data Confidence Score distribution:")
 for k, v in sq.items():
     if isinstance(v, float):
         print(f"  {k:30s}: {v:.2f}")""")
@@ -109,7 +109,7 @@ for k, v in sq.items():
 
 confidence = signals['data_confidence_score'].to_numpy()
 axes[0].hist(confidence, bins=50, color='#3498db', edgecolor='white')
-axes[0].set_title('Distribución de Confidence Score')
+axes[0].set_title('Confidence Score distribution')
 axes[0].set_xlabel('Confidence Score')
 axes[0].set_ylabel('Juegos')
 
@@ -129,12 +129,12 @@ plt.tight_layout()
 plt.savefig('../reports/figures/quality_coverage.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("## 4. Análisis de Duplicados")
+    md("## 4. Duplicate Analysis")
 
     code("""da = duplicate_analysis()
 print(f"Grupos de duplicados: {da['total_groups']}")
 print(f"Candidatos afectados: {da['total_candidates']}")
-print(f"Grupos con años diferentes: {da['groups_with_diff_years']}")
+print(f"Groups with different years: {da['groups_with_diff_years']}")
 print(f"Max candidatos por grupo: {da['max_candidates_per_group']}")""")
 
     code("""fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
@@ -162,7 +162,7 @@ ema = external_match_analysis(matches)
 print(f"Total match candidates: {ema['total_matches']:,}")
 print(f"Confianza promedio: {ema['avg_confidence']:.1f}/100")
 print(f"Auto-aprobados (high confidence): {ema['high_confidence_approved']:,}")
-print(f"Necesitan revisión: {ema['needs_review']:,}")""")
+print(f"Need review: {ema['needs_review']:,}")""")
 
     code("""fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -174,22 +174,22 @@ ax1.tick_params(axis='x', rotation=45)
 
 source_m = ema['source_distribution']
 ax2.bar(source_m['source'], source_m['len'], color=['#3498db', '#e74c3c'])
-ax2.set_title('Distribución por Fuente')
+ax2.set_title('Distribution by Source')
 ax2.set_ylabel('Candidatos')
 
 plt.tight_layout()
 plt.savefig('../reports/figures/external_matching.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("## 6. Resumen y Conclusiones\n\n**Métricas clave de calidad del catálogo:**")
+    md("## 6. Summary and Conclusions\n\n**Key catalog quality metrics:**")
 
     code("""print("=" * 60)
-print("RESUMEN DE CALIDAD DEL CATÁLOGO PLAYFIT")
+print("PLAYFIT CATALOG QUALITY SUMMARY")
 print("=" * 60)
 print(f"Total juegos:                 {cov['total_games']:>8,}")
-print(f"Sin género:                   {cov['no_genre']:>7.1f}%")
+print(f"Without genre:                {cov['no_genre']:>7.1f}%")
 print(f"Sin portada:                  {cov['no_cover']:>7.1f}%")
-print(f"Sin año:                      {cov['no_year']:>7.1f}%")
+print(f"Without year:                 {cov['no_year']:>7.1f}%")
 print(f"Confianza promedio:           {sq['avg_confidence']:>7.1f}/100")
 print(f"Con scores:                   {sq['has_scores_pct']:>7.1f}%")
 print(f"Con ventas:                   {sq['has_sales_pct']:>7.1f}%")
@@ -199,11 +199,11 @@ print(f"Match candidates:             {ema['total_matches']:>8,}")
 print("=" * 60)""")
 
     md("""**Conclusiones:**
-1. El catálogo tiene **masa crítica** (63K+ juegos) pero con **huecos significativos** de cobertura
-2. El `data_confidence_score` permite filtrar recomendaciones según calidad de datos
+1. The catalog has **critical mass** (63K+ games) but **significant coverage gaps**
+2. `data_confidence_score` enables recommendation filtering by data quality
 3. Hay **914 grupos de duplicados** que requieren limpieza manual
-4. El matching externo (Metacritic + VGSales) añade **35K+ candidatos** con confianza variable
-5. Para el sistema de recomendación, usaremos el confidence score como penalización y los duplicados para evitar recomendar versiones redundantes""")
+4. External matching (Metacritic + VGSales) adds **35K+ candidates** with variable confidence
+5. The recommendation system will use confidence as a penalty and duplicates to avoid recommending redundant versions""")
 
     return nbf.v4.new_notebook(cells=cells, metadata=NB.metadata)
 
@@ -211,7 +211,7 @@ print("=" * 60)""")
 def generate_02():
     global cells
     cells = []
-    md("# Playfit Intelligence Lab — 02: Feature Engineering\n\nConstrucción de la matriz de features para el motor de recomendación.")
+    md("# Playfit Intelligence Lab — 02: Feature Engineering\n\nBuilding the feature matrix for the recommendation engine.")
 
     code("""import sys; sys.path.insert(0, '..')
 import warnings; warnings.filterwarnings('ignore')
@@ -225,7 +225,7 @@ from src.features.game_features import build_feature_matrix, compute_popularity_
 from src.models.content_based import build_content_model
 
 sns.set_theme(style="darkgrid")
-print("Librerías cargadas.")""")
+print("Libraries loaded.")""")
 
     md("## 1. Feature Matrix\nConstruimos la matriz con tags (one-hot), plataformas (one-hot), scores, ventas, sentimiento y confianza.")
 
@@ -241,10 +241,10 @@ meta = {'game_id', 'title', 'release_year', 'genre_id', 'best_critic_score', 'be
         'has_review_sentiment', 'log_sales', 'total_review_count', 'popularity_score', 'richness_score'}
 content_cols = [c for c in fm.columns if c not in meta]
 print(f"  Tags/Platforms (binary): {len(content_cols)}")
-print(f"  Numéricas (scores, sales, etc.): {len(meta) - 2}")""")
+print(f"  Numeric (scores, sales, etc.): {len(meta) - 2}")""")
 
-    md("""## 2. Análisis de Features
-### 2.1 Tags más comunes""")
+    md("""## 2. Feature Analysis
+### 2.1 Most common tags""")
 
     code("""tag_counts = {}
 for col in content_cols:
@@ -252,7 +252,7 @@ for col in content_cols:
         tag_counts[col] = fm[col].sum()
 
 sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)
-print("Top 20 tags más comunes:")
+print("Top 20 most common tags:")
 for tag, count in sorted_tags[:20]:
     print(f"  {tag:25s}: {int(count):>6,} juegos")""")
 
@@ -262,18 +262,18 @@ ax.barh(range(len(tags_names)), tags_counts, color='#3498db')
 ax.set_yticks(range(len(tags_names)))
 ax.set_yticklabels(tags_names)
 ax.set_xlabel('Juegos')
-ax.set_title('Top 20 Tags más comunes')
+ax.set_title('Top 20 most common tags')
 ax.invert_yaxis()
 plt.tight_layout()
 plt.savefig('../reports/figures/top_tags.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("### 2.2 Distribución de Popularity Score")
+    md("### 2.2 Popularity Score distribution")
 
     code("""fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
 ax1.hist(fm['popularity_score'].to_numpy(), bins=50, color='#2ecc71', edgecolor='white')
-ax1.set_title('Distribución de Popularity Score')
+ax1.set_title('Popularity Score distribution')
 ax1.set_xlabel('Popularity Score')
 
 ax2.scatter(
@@ -289,12 +289,12 @@ plt.tight_layout()
 plt.savefig('../reports/figures/popularity_distribution.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("### 2.3 Reducción de dimensionalidad (SVD)")
+    md("### 2.3 Dimensionality reduction (SVD)")
 
     code("""cm = build_content_model(fm, n_components=100)
 reduced = cm['reduced']
-print(f"Dimensión original: {len(content_cols)}")
-print(f"Dimensión reducida: {reduced.shape[1]}")
+print(f"Original dimension: {len(content_cols)}")
+print(f"Reduced dimension: {reduced.shape[1]}")
 print(f"Varianza explicada (primeros componentes): {cm['svd'].explained_variance_ratio_[:5]}")
 print(f"Varianza explicada acumulada (100 comps): {cm['svd'].explained_variance_ratio_.sum():.4f}")""")
 
@@ -305,8 +305,8 @@ print(f"  - {len(content_cols)} features de contenido (tags + plataformas)")
 print(f"  - Popularity score compuesto (scores + ventas + confianza)")
 print(f"  - Richness score (cantidad de datos disponibles)")
 print(f"  - Data confidence score (calidad de datos: 0-100)")
-print(f"  - Embedding SVD-100 (representación densa de contenido)")
-print(f"  - Features de señal: critic/user score, review counts, sales, sentiment")
+print(f"  - SVD-100 embedding (dense content representation)")
+print(f"  - Signal features: critic/user score, review counts, sales, sentiment")
 print(f"\\nMatriz guardada en: data/processed/feature_matrix.parquet ({fm.shape[0]:,} × {fm.shape[1]})")""")
 
     return nbf.v4.new_notebook(cells=cells, metadata=NB.metadata)
@@ -315,7 +315,7 @@ print(f"\\nMatriz guardada en: data/processed/feature_matrix.parquet ({fm.shape[
 def generate_03():
     global cells
     cells = []
-    md("# Playfit Intelligence Lab — 03: Hybrid Recommender Model\n\nSistema de recomendación híbrido: content-based + popularity priors + penalización por calidad de datos.")
+    md("# Playfit Intelligence Lab — 03: Hybrid Recommender Model\n\nHybrid recommendation system: content-based + popularity priors + data-quality penalty.")
 
     code("""import sys; sys.path.insert(0, '..')
 import warnings; warnings.filterwarnings('ignore')
@@ -328,9 +328,9 @@ from src.models.content_based import build_content_model
 from src.models.hybrid import HybridRecommender
 from src.evaluation.explainability import make_explanation, get_game_details
 
-print("Librerías y módulos cargados.")""")
+print("Libraries and modules loaded.")""")
 
-    md("## 1. Preparación del Modelo\nCargamos la feature matrix y construimos el modelo content-based.")
+    md("## 1. Model Setup\nWe load the feature matrix and build the content-based model.")
 
     code("""fm = build_feature_matrix()
 fm = compute_popularity_score(fm)
@@ -344,7 +344,7 @@ print(f"Content model construido (SVD-100)")""")
 
     code("""rec = HybridRecommender(alpha=0.5, beta=0.4, gamma=0.1)
 rec.fit(fm, cm)
-print("Modelo híbrido listo.")""")
+print("Hybrid model ready.")""")
 
     md("## 3. Ejemplo: Recomendar para juegos conocidos")
 
@@ -368,14 +368,14 @@ print("Cold-start (popularidad global):")
 for r in cold_results:
     print(f"  {r['game_id']}: score={r['final_score']:.2f}, conf={r['data_confidence']}")""")
 
-    md("## 5. Recomendación por Perfil de Tags")
+    md("## 5. Recommendation by Tag Profile")
 
     code("""profile_recs = rec.recommend_for_profile(['story_rich', 'atmospheric', 'exploration'], k=5)
 print("Para perfil: story_rich + atmospheric + exploration")
 for r in profile_recs:
     print(f"  {r['game_id']}: score={r['final_score']:.2f}")""")
 
-    md("## 6. Experimentación con Hiperparámetros (α, β, γ)")
+    md("## 6. Hyperparameter Experimentation (α, β, γ)")
 
     code("""import itertools
 
@@ -400,19 +400,19 @@ for alpha, beta, gamma in param_grid:
     print(f"{alpha:5.1f} {beta:5.1f} {gamma:5.1f}  {top:>40} {score:8.3f}")
     results_summary.append({'alpha': alpha, 'beta': beta, 'gamma': gamma, 'top': top, 'score': score})
 
-print("\\nLos mejores parámetros variarán según el perfil de usuario. En la práctica, se optimizarían con validación cruzada sobre datos de interacción reales.")""")
+    print("\\nThe best parameters will vary by user profile. In practice, they would be optimized with cross-validation on real interaction data.")""")
 
     md("""## 7. Resumen del Modelo
 
 **Componentes:**
 - **Content-Based (α):** Similaridad coseno sobre embedding SVD-100 de tags y plataformas
 - **Popularity Prior (β):** Ranking compuesto de scores, ventas y sentimiento
-- **Confidence Penalty (γ):** Penalización por baja calidad de datos
+- **Confidence Penalty (γ):** Penalty for low data quality
 
 **Casos borde manejados:**
 - **Cold-start:** Ranking por popularidad global cuando no hay historial
-- **Datos incompletos:** Imputación de scores/ventas faltantes por mediana
-- **Diversidad:** Embedding SVD captura relaciones semánticas entre juegos""")
+- **Incomplete data:** Impute missing scores/sales with the median
+- **Diversity:** SVD embeddings capture semantic relationships between games""")
 
     return nbf.v4.new_notebook(cells=cells, metadata=NB.metadata)
 
@@ -420,7 +420,7 @@ print("\\nLos mejores parámetros variarán según el perfil de usuario. En la p
 def generate_04():
     global cells
     cells = []
-    md("# Playfit Intelligence Lab — 04: Model Evaluation\n\nEvaluación offline del recomendador híbrido con métricas de precisión, cobertura, novedad y diversidad.")
+    md("# Playfit Intelligence Lab — 04: Model Evaluation\n\nOffline evaluation of the hybrid recommender using precision, coverage, novelty, and diversity metrics.")
 
     code("""import sys; sys.path.insert(0, '..')
 import warnings; warnings.filterwarnings('ignore')
@@ -440,9 +440,9 @@ from src.evaluation.metrics import (
 
 sns.set_theme(style="darkgrid")
 plt.rcParams['figure.figsize'] = (12, 6)
-print("Librerías y módulos cargados.")""")
+print("Libraries and modules loaded.")""")
 
-    md("## 1. Setup del Modelo y Datos de Evaluación")
+    md("## 1. Model Setup and Evaluation Data")
 
     code("""fm = build_feature_matrix()
 fm = compute_popularity_score(fm)
@@ -454,7 +454,7 @@ rec.fit(fm, cm)
 
 popularity_map = dict(zip(fm['game_id'].to_list(), fm['popularity_score'].to_list()))
 
-# Perfiles de usuario sintéticos para evaluación
+# Synthetic user profiles for evaluation
 test_profiles = [
     {"name": "Casual Gamer", "tags": ["casual", "puzzle", "family", "party", "rhythm"]},
     {"name": "Hardcore Gamer", "tags": ["action", "challenging", "souls_like", "rpg", "shooter"]},
@@ -480,7 +480,7 @@ print("-" * 50)
 for p, recs, rel in zip(test_profiles, all_recommendations, all_relevant):
     print(f"{p['name']:20s} {len(rel):>12,} {len(recs):>14,}")""")
 
-    md("## 2. Métricas Core: Precision@k, Recall@k, NDCG@k")
+    md("## 2. Core Metrics: Precision@k, Recall@k, NDCG@k")
 
     code("""ks = [1, 3, 5, 10, 20]
 metrics_by_k = {}
@@ -507,13 +507,13 @@ for metric in ['precision', 'recall', 'ndcg']:
     ax.plot(ks, values, marker='o', label=metric)
 ax.set_xlabel('k')
 ax.set_ylabel('Score')
-ax.set_title('Métricas de Evaluación vs k')
+ax.set_title('Evaluation Metrics vs k')
 ax.legend()
 ax.grid(True, alpha=0.3)
 plt.savefig('../reports/figures/metrics_vs_k.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("## 3. Cobertura del Catálogo")
+    md("## 3. Catalog Coverage")
 
     code("""total_catalog = len(fm)
 for profile, recs in zip(test_profiles, all_recommendations):
@@ -538,7 +538,7 @@ print(f"\\n{'Combinado':20s} Coverage: {combined_coverage*100:.2f}% ({int(combin
     md("## 6. Cold-Start Analysis")
 
     code("""confidence_segments = [(0, 30, 'Baja'), (30, 60, 'Media'), (60, 80, 'Alta'), (80, 100, 'Muy alta')]
-print(f"{'Segmento':15s} {'Juegos':>10s} {'En Top-20':>10s} {'Proporción':>10s}")
+print(f"{'Segment':15s} {'Games':>10s} {'In Top-20':>10s} {'Share':>10s}")
 print("-" * 47)
 all_top20 = set()
 for recs in all_recommendations:
@@ -551,24 +551,24 @@ for lo, hi, label in confidence_segments:
     prop = in_top / count if count > 0 else 0
     print(f"{label:15s} {count:>10,} {in_top:>10,} {prop:>10.3f}")""")
 
-    md("""## 7. Resumen de Evaluación""")
+    md("""## 7. Evaluation Summary""")
 
     code("""print("=" * 60)
-print("RESUMEN DE EVALUACIÓN - PLAYFIT RECOMMENDER")
+print("PLAYFIT RECOMMENDER EVALUATION SUMMARY")
 print("=" * 60)
 m5 = metrics_by_k[5]
-print(f"Precision@5 (promedio):    {m5['precision']:.4f}")
-print(f"Recall@5 (promedio):       {m5['recall']:.4f}")
-print(f"NDCG@5 (promedio):         {m5['ndcg']:.4f}")
-print(f"MAP@20 (promedio):         {map_at_k(all_recommendations, all_relevant, 20):.4f}")
+print(f"Precision@5 (mean):        {m5['precision']:.4f}")
+print(f"Recall@5 (mean):           {m5['recall']:.4f}")
+print(f"NDCG@5 (mean):             {m5['ndcg']:.4f}")
+print(f"MAP@20 (mean):             {map_at_k(all_recommendations, all_relevant, 20):.4f}")
 print(f"Hit Rate@20:               {hit_rate_at_k(all_recommendations, all_relevant, 20):.4f}")
-print(f"Cobertura del catálogo:    {combined_coverage*100:.2f}%")
+print(f"Catalog coverage:          {combined_coverage*100:.2f}%")
 print()
-print("Mejoras potenciales:")
-print("  - Incorporar feedback implícito (tiempo de juego, clicks)")
-print("  - Añadir filtrado colaborativo (matrix factorization)")
-print("  - Optimizar α/β/γ con validación cruzada sobre datos de interacción reales")
-print("  - Añadir re-ranking de diversidad (MMR)")
+print("Potential improvements:")
+print("  - Incorporate implicit feedback (play time, clicks)")
+print("  - Add collaborative filtering (matrix factorization)")
+print("  - Optimize α/β/γ with cross-validation on real interaction data")
+print("  - Add diversity re-ranking (MMR)")
 print("=" * 60)""")
 
     return nbf.v4.new_notebook(cells=cells, metadata=NB.metadata)

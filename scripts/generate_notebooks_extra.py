@@ -36,10 +36,10 @@ def nb05():
     cells = []
 
     md("# Playfit Intelligence Lab — 05: MLflow Tracking, A/B Testing & LLM Explainability")
-    md("""Este notebook demuestra tres capacidades avanzadas de MLOps y evaluación:
+    md("""This notebook demonstrates three advanced MLOps and evaluation capabilities:
 
-1. **MLflow Experiment Tracking**: Logging de parámetros, métricas y artefactos
-2. **A/B Test Simulator**: Confrontación estadística entre variantes del modelo
+1. **MLflow Experiment Tracking**: Parameter, metric, and artifact logging
+2. **A/B Test Simulator**: Statistical comparison between model variants
 3. **LLM Explainability**: Explicaciones narrativas con GPT-4o-mini""")
 
     code("""import sys; sys.path.insert(0, '..')
@@ -53,7 +53,7 @@ from src.features.game_features import build_feature_matrix, compute_popularity_
 from src.models.content_based import build_content_model
 from src.models.hybrid import HybridRecommender
 
-print("Librerías cargadas.")
+print("Libraries loaded.")
 print(f"MLflow version: {__import__('mlflow').__version__}")""")
 
     md("## 1. MLflow Experiment Tracking\n\nCreamos un experimento y corremos grid search sobre α, β, γ.")
@@ -70,7 +70,7 @@ print("To view: run 'mlflow ui' in terminal, open http://localhost:5000")""")
 df_results = run_grid_search(experiment_name="playfit-hybrid-demo")
 print(f"\\nBest config: α={df_results.iloc[0]['alpha']}, β={df_results.iloc[0]['beta']}, γ={df_results.iloc[0]['gamma']}")""")
 
-    md("## 2. A/B Test Simulator\n\nComparamos dos variantes del modelo con significancia estadística.")
+    md("## 2. A/B Test Simulator\n\nWe compare two model variants for statistical significance.")
 
     code("""from src.evaluation.ab_test import ABTestSimulator
 
@@ -145,10 +145,10 @@ for r in results:
     comp = compare_explanations(rule_expl, llm_expl)
     print(f"  (LLM longer: {comp['llm_is_longer']}, chars: {comp['rule_based_chars']} vs {comp['llm_based_chars']})")""")
 
-    md("""## 4. Resumen de Capacidades Añadidas
+    md("""## 4. Summary of Added Capabilities
 
-| Capacidad | Herramienta | Estado |
-|-----------|------------|--------|
+| Capability | Tool | Status |
+|------------|------|--------|
 | Experiment tracking | MLflow 3.14 | ✅ Logs a `mlruns/` |
 | Grid search | 10 configuraciones α/β/γ | ✅ Auto-logueado |
 | A/B Testing | Bootstrap + CI + p-value | ✅ |
@@ -166,12 +166,12 @@ def nb06():
     cells = []
 
     md("# Playfit Intelligence Lab — 06: LambdaRank & DuckDB Analytics")
-    md("""Dos temas avanzados:
+    md("""Two advanced topics:
 
-1. **LightGBM LambdaRank**: Modelo de ranking basado en gradient boosting comparado contra el híbrido
-2. **DuckDB Analytics**: Motor OLAP embebido para consultas analíticas sobre Parquet""")
+1. **LightGBM LambdaRank**: Gradient-boosting ranking model compared with the hybrid model
+2. **DuckDB Analytics**: Embedded OLAP engine for analytical queries over Parquet""")
 
-    md("## 1. LightGBM LambdaRank\n\nEntrenamos un `LGBMRanker` con `objective='lambdarank'` y comparamos NDCG contra el modelo híbrido.")
+    md("## 1. LightGBM LambdaRank\n\nWe train an `LGBMRanker` with `objective='lambdarank'` and compare NDCG against the hybrid model.")
 
     code("""import sys; sys.path.insert(0, '..')
 import warnings; warnings.filterwarnings('ignore')
@@ -237,7 +237,7 @@ plt.tight_layout()
 plt.savefig('../reports/figures/lambdarank_vs_hybrid.png', dpi=150, bbox_inches='tight')
 plt.show()""")
 
-    md("""## 2. DuckDB Analytics\n\nDuckDB permite consultas SQL directamente sobre archivos Parquet, ideal para análisis exploratorio sin cargar datos en memoria.""")
+    md("""## 2. DuckDB Analytics\n\nDuckDB runs SQL queries directly over Parquet files, ideal for exploratory analysis without loading data into memory.""")
 
     code("""from src.data.analytics_duckdb import DuckDBAnalytics
 da = DuckDBAnalytics()
@@ -303,12 +303,12 @@ print(f"  Pandas:  {pandas_time*1000:.1f}ms")
 
     md("""## 3. Resumen
 
-| Técnica | Librería | Resultado |
+| Technique | Library | Result |
 |---------|----------|-----------|
 | LambdaRank | LightGBM 4.6 | Modelo de ranking competitivo con baseline |
 | SQL Analytics | DuckDB 1.5 | Consultas directo sobre Parquet, sin carga |
 | Window Functions | DuckDB SQL | `ROW_NUMBER() OVER (PARTITION BY)` |
-| Approximate Count | DuckDB `approx_count_distinct()` | ~rápido para cardinalidad de tags |""")
+| Approximate Count | DuckDB `approx_count_distinct()` | ~fast for tag cardinality |""")
 
     return nbf.v4.new_notebook(cells=cells, metadata=NB_META)
 

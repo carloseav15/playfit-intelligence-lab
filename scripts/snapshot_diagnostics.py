@@ -1,6 +1,6 @@
 """
 scripts/snapshot_diagnostics.py — Toma un snapshot del schema _diagnostics y lo guarda
-en docs/diagnostics_snapshots/ con timestamp. Permite comparar mejoras antes/después.
+to docs/diagnostics_snapshots/ with a timestamp. Enables before/after improvement comparisons.
 
 Uso:
     python3 scripts/snapshot_diagnostics.py
