@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax-and-imports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - name: Byte-compile everything (catches syntax errors)
+        run: python -m compileall -q src app scripts
+      # There is no test suite yet (see AGENTS.md's Known state) -- this only proves
+      # the code parses and its top-level dependencies resolve, not that it's correct.
+      # Extend this job with real tests before treating it as meaningful coverage.
