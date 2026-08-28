@@ -1,11 +1,11 @@
 #!/bin/bash
-# Runs when the qa subagent finishes (SubagentStop, matcher "qa"). Decrements
-# .pending-qa-count by 1 only if qa wrote a well-formed {"result":"pass"} --
-# validated with jq, not a substring grep. See .claude/agents/qa.md.
+# Runs when the qa subagent finishes (SubagentStop, matcher "qa"). Removes one
+# file from .pending-qa/ only if qa wrote a well-formed {"result":"pass"} --
+# validated with jq. Does not associate the removal with a specific diff/task
+# -- removes the oldest pending file. See .claude/agents/qa.md.
 
 RESULT_FILE="$CLAUDE_PROJECT_DIR/.claude/.qa-result"
-COUNT_FILE="$CLAUDE_PROJECT_DIR/.claude/.pending-qa-count"
-COUNT=$(cat "$COUNT_FILE" 2>/dev/null || echo 0)
+PENDING_DIR="$CLAUDE_PROJECT_DIR/.claude/.pending-qa"
 
 PASSED=false
 if [ -f "$RESULT_FILE" ]; then
@@ -15,10 +15,13 @@ if [ -f "$RESULT_FILE" ]; then
   fi
 fi
 
-if [ "$PASSED" = true ] && [ "$COUNT" -gt 0 ] 2>/dev/null; then
-  echo $((COUNT - 1)) > "$COUNT_FILE"
+if [ "$PASSED" = true ]; then
+  OLDEST=$(ls -tr "$PENDING_DIR" 2>/dev/null | head -1)
+  if [ -n "$OLDEST" ]; then
+    rm -f "$PENDING_DIR/$OLDEST"
+  fi
 else
-  echo "qa finished without a validated pass result -- pending-qa-count stays at $COUNT." >&2
+  echo "qa finished without a validated pass result -- pending work is not cleared." >&2
 fi
 
 rm -f "$RESULT_FILE"
