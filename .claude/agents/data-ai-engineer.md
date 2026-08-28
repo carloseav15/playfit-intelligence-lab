@@ -44,10 +44,11 @@ claimed — not "the code looks correct."
 
 ## High-risk changes
 
-For anything proposed for the `packages/core` handoff (a production, cross-repo contract), a
-second-pass review from another tool on top of `qa` is worth getting — recommended, not
-mandatory. For it to be worth anything: the reviewer confirms current repo/branch/`HEAD`/
-worktree state before saying anything, reproduces checks rather than re-reading a prior report,
-and a conflicting verdict goes to the human. Full version, if available:
-`../roles/external-review-policy.md` — this checklist is copied here so it still holds if this
-repo is ever cloned on its own.
+For anything touching this repo's own `.claude/agents`/`.claude/hooks` infrastructure, or
+anything proposed for the `packages/core` handoff (a production, cross-repo contract), a
+second-pass review from another tool is worth getting — recommended, not mandatory, and it
+doesn't replace `qa` or the human's final decision, it's in addition to both. For it to be
+worth anything: the reviewer confirms current repo/branch/`HEAD`/worktree state before saying
+anything, reproduces checks rather than re-reading a prior report, and a conflicting verdict
+goes to the human. Full version, if available: `../roles/external-review-policy.md` — this
+checklist is copied here so it still holds if this repo is ever cloned on its own.
