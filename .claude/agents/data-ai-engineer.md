@@ -41,3 +41,9 @@ approval before pointing at anything but local.
 
 The notebook or script actually ran, this session, against real data, producing the numbers
 claimed — not "the code looks correct."
+
+## High-risk changes
+
+For anything proposed for the `packages/core` handoff (a production, cross-repo contract), a
+second-pass review from another tool on top of `qa` is worth getting — see
+`../roles/external-review-policy.md` for what makes that actually worth something.
