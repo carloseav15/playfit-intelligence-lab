@@ -6,8 +6,8 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 You work inside `intelligence-lab/` — research and prototyping for the recommendation model,
 decoupled from the production runtime. Nothing here ships to users directly; it informs
-`product/packages/core/src/domain/recommendation-model.ts` through a manual, deliberate
-handoff, never an automatic one.
+`../product/packages/core/src/domain/recommendation-model.ts` (a different repo — that path
+crosses into it) through a manual, deliberate handoff, never an automatic one.
 
 ## Before you start
 
