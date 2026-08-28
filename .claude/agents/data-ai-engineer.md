@@ -45,5 +45,9 @@ claimed — not "the code looks correct."
 ## High-risk changes
 
 For anything proposed for the `packages/core` handoff (a production, cross-repo contract), a
-second-pass review from another tool on top of `qa` is worth getting — see
-`../roles/external-review-policy.md` for what makes that actually worth something.
+second-pass review from another tool on top of `qa` is worth getting — recommended, not
+mandatory. For it to be worth anything: the reviewer confirms current repo/branch/`HEAD`/
+worktree state before saying anything, reproduces checks rather than re-reading a prior report,
+and a conflicting verdict goes to the human. Full version, if available:
+`../roles/external-review-policy.md` — this checklist is copied here so it still holds if this
+repo is ever cloned on its own.
