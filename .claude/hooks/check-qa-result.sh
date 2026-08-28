@@ -1,28 +1,23 @@
 #!/bin/bash
-# Runs when the qa subagent finishes (SubagentStop, matcher "qa"). Removes one
-# file from .pending-qa/ only if qa wrote a well-formed {"result":"pass"} --
-# validated with jq. Does not associate the removal with a specific diff/task
-# -- removes the oldest pending file. See .claude/agents/qa.md.
+# Runs when the qa subagent finishes (SubagentStop, matcher "qa"). Removes
+# every file under .pending-qa/ whose content is exactly PASS.
+#
+# No shared .qa-result file anymore -- the old design raced under
+# concurrency (100 parallel qa passes left 92-97 pending instead of 0,
+# reproduced and confirmed against this repo's own copy too). qa now writes
+# its verdict INTO the specific pending file it verified (see
+# .claude/agents/qa.md), so there's no shared mutable state between
+# concurrent qa runs. This hook just sweeps for anything marked PASS.
 
-RESULT_FILE="$CLAUDE_PROJECT_DIR/.claude/.qa-result"
 PENDING_DIR="$CLAUDE_PROJECT_DIR/.claude/.pending-qa"
 
-PASSED=false
-if [ -f "$RESULT_FILE" ]; then
-  RESULT=$(jq -r '.result // empty' "$RESULT_FILE" 2>/dev/null)
-  if [ "$RESULT" = "pass" ]; then
-    PASSED=true
-  fi
+if [ -d "$PENDING_DIR" ]; then
+  for f in "$PENDING_DIR"/*; do
+    [ -f "$f" ] || continue
+    if [ "$(cat "$f" 2>/dev/null)" = "PASS" ]; then
+      rm -f "$f"
+    fi
+  done
 fi
 
-if [ "$PASSED" = true ]; then
-  OLDEST=$(ls -tr "$PENDING_DIR" 2>/dev/null | head -1)
-  if [ -n "$OLDEST" ]; then
-    rm -f "$PENDING_DIR/$OLDEST"
-  fi
-else
-  echo "qa finished without a validated pass result -- pending work is not cleared." >&2
-fi
-
-rm -f "$RESULT_FILE"
 exit 0
